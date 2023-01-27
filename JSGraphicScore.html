@@ -1,11 +1,12 @@
-  <html>
+<!DOCTYPE html>
+<html>
   <body>
-    <!-- Start Pssting from this line for Moodle -->
+    <!-- Start Pasting from this line for Moodle -->
     <div id="score-container" width="100%">
   <p dir="ltr" style="text-align: left;">Pick one or more Notes to play. You can use dotes and/or flat lines for notations.<br></p>
   <form id="formElem">
     <label for "notes">Notes:</label>
-    <input type="text" name="notes" id="notes" value="C, G">
+    <input type="text" name="notes" id="notes" value="C">
     
     <label for "dots">Dots:</label>
     <input type="checkbox" id="dots" name="dots" value="1" checked>
@@ -17,8 +18,14 @@
     <option value="2">Sloped</option>
   </select> 
     <label for "circles">Circles:</label>
-    <input type="checkbox" id="circles" name="circles" value="1">
-
+    <input type="checkbox" id="circles" name="circles" value="0" unchecked>
+    <label for "min">Make between: </label>
+      <input type="number" id="min" name="min" min="1" max="500" value="3">
+    <label for "max"> and:</label>
+         <input type="number" id="max" name="max" min="1" max="500" value="5">
+    <label for "staves"> objects on</label>
+            <input type="number" id="staves" name="staves" min="1" max="12" value="1">
+    <label for "staves">lines.</label>
     <input type="submit">
   </form>
   <canvas height="310" id="canvas_images" style="border: 1px solid #d3d3d3;" width="1280">
@@ -40,7 +47,11 @@
     	}
 	  }
 	  
-	  function scoreCircle(ctx, x, y, radius, fill) {}
+	  function scoreCircle(ctx, x, y, radius, fill) {
+      var fcolour = 'white'
+      if(fill == 1){ fcolour = 'black';}
+      drawCircle(ctx, x, y, radius, fcolour, 'black', 2);
+    }
     
     function drawDot(ctx, x,y) {
       var dots = document.getElementById("dots").value;
@@ -91,24 +102,30 @@
     }
 
 
-    function pickItem(ctx, x1, y1, x2, height, radius, fill) {
+    function pickItem(ctx, x1, y1, x2, height, radius, fill, options) {
     
       index = Math.floor(Math.random() * options.length);
+      //console.log(options);
+      //console.log(index);
+      //console.log(options[index]);
       switch (options[index]) {
         case 0:
           drawDot(ctx, x1, y1);
+          //console.log("dot");
           break;
         case 1:
-          scoreLine(ctx, x1, y1, x2, height);
+          scoreLine(ctx, x1, y1, x2, height* 2/3);
+          //console.log("line");
           break;
-        case 3:
-          scoreCircle(ctx, x, y, radius, fill);
+        case 2:
+          scoreCircle(ctx, x1, y1, radius, fill);
+          //console.log("circle");
           break;
         }
     }
     
     
-    function drawScore(ctx, staves, dots, lines, circles){
+    function drawScore(ctx, staves, options, min, diff){
       var canvas_width = ctx.canvas.clientWidth;
 		  var canvas_height = ctx.canvas.clientHeight;
       var height = 0;
@@ -117,11 +134,11 @@
     
       var range = canvas_width / 20;
       
-     
 		  
 		  
       for (let i = 0; i < staves; i++) {
-    		num_items = Math.floor(Math.random() * 5) + 5;
+    		num_items = Math.floor(Math.random() * diff) + min;
+        //console.log(num_items);
         height += stave_height;
         //drawDot(ctx, Math.floor(Math.random * canvas_width), height);
         for(let j=0; j < num_items; j++) {
@@ -129,8 +146,8 @@
        		//drawDot(ctx, Math.floor(Math.random() * canvas_width), height);
        		var x1 = Math.floor(Math.random() * canvas_width);
        		var x2 = x1 + Math.floor(Math.random() * range) + 20;
-       		var radius = Math.floor((Math.random() * (stave_height / 2)) + (stave_height / 2));
-       		pickItem(ctx, x1, height, x2, stave_height, radius , Math.floor(Math.random()  * 2));
+       		var radius = Math.floor((Math.random() * (stave_height / 2)) + 5);
+       		pickItem(ctx, x1, height, x2, stave_height, radius , Math.floor(Math.random()  * 2), options);
         }
 		  } 
     }
@@ -139,8 +156,10 @@
        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
        
       var allnotes = document.getElementById("notes").value;
-      context.fillText(allnotes, 30, 60);
-      var notes = allnotes.split(",");
+      //console.log(allnotes);
+      ctx.fillStyle = 'black';
+      ctx.fillText(allnotes, 30, 60);
+      //var notes = allnotes.split(",");
       
       options = [];
       
@@ -154,15 +173,21 @@
         options.push(1);
       }
       
-     var circles = document.getElementById("circles").value;
-      if( circles != 0) {
+     if (document.getElementById("circles").checked) {
         options.push(2);
       }
       
-      console.log(options);
+      //console.log(options);
       
+      var staves = Number(document.getElementById("staves").value);
+      var min = Number(document.getElementById("min").value);
+      var max = Number(document.getElementById("max").value);
+      var diff = Math.abs(max - min);
+      min = Math.min(max, min);
       if (options.length > 0 ) {
-        drawScore(ctx, notes.length, 1, 0, 0, 0);
+        drawScore(ctx, staves, options, min, diff);
+        //ctx.fillStyle = 'black';
+        //ctx.fillText(allnotes, 30, 60);
       }
     }
     
