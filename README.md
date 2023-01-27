@@ -17,4 +17,4 @@ button. More buttons will appear. Then click on the </> button.
 Select everthing in the large text area and paste in the contents of your 
 clipboard.
 
-Click the "Save and Display" button to see if ti worked.
+Click the "Save and Display" button to see if it worked.
