@@ -1,0 +1,209 @@
+  <html>
+  <body>
+    <!-- Start Pssting from this line for Moodle -->
+    <div id="score-container" width="100%">
+  <p dir="ltr" style="text-align: left;">Pick one or more Notes to play. You can use dotes and/or flat lines for notations.<br></p>
+  <form id="formElem">
+    <label for "notes">Notes:</label>
+    <input type="text" name="notes" id="notes" value="C, G">
+    
+    <label for "dots">Dots:</label>
+    <input type="checkbox" id="dots" name="dots" value="1" checked>
+    
+     <label for="lines">Lines:</label>
+  <select name="lines" id="lines">
+    <option value="0">None</option>
+    <option value="1">Flat</option>
+    <option value="2">Sloped</option>
+  </select> 
+    <label for "circles">Circles:</label>
+    <input type="checkbox" id="circles" name="circles" value="1">
+
+    <input type="submit">
+  </form>
+  <canvas height="310" id="canvas_images" style="border: 1px solid #d3d3d3;" width="1280">
+      Your browser does not support the HTML5 canvas tag.</canvas>
+
+  <script>  
+    
+    function drawCircle(ctx, x, y, radius, fill, stroke, strokeWidth) {
+    	ctx.beginPath()
+    	ctx.arc(x, y, radius, 0, 2 * Math.PI, false)
+    	if (fill) {
+      	ctx.fillStyle = fill
+      	ctx.fill()
+    	}
+    	if (stroke) {
+      	ctx.lineWidth = strokeWidth
+      	ctx.strokeStyle = stroke
+      	ctx.stroke()
+    	}
+	  }
+	  
+	  function scoreCircle(ctx, x, y, radius, fill) {}
+    
+    function drawDot(ctx, x,y) {
+      var dots = document.getElementById("dots").value;
+      
+      if (dots ==0) {
+        return false;
+      }
+      drawCircle(ctx, x, y, 5, 'black', 'black', 2);
+      return true;
+    }
+    
+    function drawLine(ctx, x1, y1, x2, y2) {
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 5;
+
+      // draw a red line
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+    
+    
+    function scoreLine(ctx, x1, y1, x2, height) {
+    
+      var lines = document.getElementById("lines").value;
+      if( lines == 0) {
+        return false;
+      }
+      
+      if( lines == 1) {
+      
+        drawLine(ctx, x1, y1, x2, y1);
+      } else {
+    
+        var slopes = [-1, 1, 0, 0, 0, 0, 0]
+        var diagonal = slopes[Math.floor(Math.random()*slopes.length)]
+    
+        if (diagonal != 0) {
+          x2 = x2 + height;
+        }
+      
+        var y2 = y1 + (height * diagonal);
+        drawLine(ctx, x1, y1, x2, y2);
+      }
+      
+      return true;
+    }
+
+
+    function pickItem(ctx, x1, y1, x2, height, radius, fill) {
+    
+      index = Math.floor(Math.random() * options.length);
+      switch (options[index]) {
+        case 0:
+          drawDot(ctx, x1, y1);
+          break;
+        case 1:
+          scoreLine(ctx, x1, y1, x2, height);
+          break;
+        case 3:
+          scoreCircle(ctx, x, y, radius, fill);
+          break;
+        }
+    }
+    
+    
+    function drawScore(ctx, staves, dots, lines, circles){
+      var canvas_width = ctx.canvas.clientWidth;
+		  var canvas_height = ctx.canvas.clientHeight;
+      var height = 0;
+      var stave_height = Math.floor(canvas_height / ( staves + 1));
+      var num_items;
+    
+      var range = canvas_width / 20;
+      
+     
+		  
+		  
+      for (let i = 0; i < staves; i++) {
+    		num_items = Math.floor(Math.random() * 5) + 5;
+        height += stave_height;
+        //drawDot(ctx, Math.floor(Math.random * canvas_width), height);
+        for(let j=0; j < num_items; j++) {
+          //  pickItem(ctx, x1, y1, x2, height, radius, fill)
+       		//drawDot(ctx, Math.floor(Math.random() * canvas_width), height);
+       		var x1 = Math.floor(Math.random() * canvas_width);
+       		var x2 = x1 + Math.floor(Math.random() * range) + 20;
+       		var radius = Math.floor((Math.random() * (stave_height / 2)) + (stave_height / 2));
+       		pickItem(ctx, x1, height, x2, stave_height, radius , Math.floor(Math.random()  * 2));
+        }
+		  } 
+    }
+    
+    function parseForm(ctx) {
+       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+       
+      var allnotes = document.getElementById("notes").value;
+      context.fillText(allnotes, 30, 60);
+      var notes = allnotes.split(",");
+      
+      options = [];
+      
+      //var dots = document.getElementById("dots").value;
+      //console.log(dots);
+      if (document.getElementById("dots").checked) {
+        options.push(0);
+      }
+      var lines = document.getElementById("lines").value;
+      if( lines != 0) {
+        options.push(1);
+      }
+      
+     var circles = document.getElementById("circles").value;
+      if( circles != 0) {
+        options.push(2);
+      }
+      
+      console.log(options);
+      
+      if (options.length > 0 ) {
+        drawScore(ctx, notes.length, 1, 0, 0, 0);
+      }
+    }
+    
+
+      var c = document.getElementById("canvas_images");
+      //c.width = 0.99 * window.screen.availWidth; 
+      var clientWidth = document.getElementById('score-container').clientWidth;
+      c.width = 0.99 * clientWidth;
+      c.height = Math.max(c.height, 0.4 * window.screen.availHeight);
+      var context = c.getContext("2d");
+      //var numGlyphs = Math.floor((Math.random() * 3) + 1) + 1;
+      //var blob = new Image();
+      //var x, y;
+
+      context.font = "300% Bravura";
+      //blob.src = "https://farm8.staticflickr.com/7322/9736783860_4c2706d4ef_m.jpg"
+      //blob.onload = function() {
+      //    context.drawImage(blob, 0, 0);
+      //    for (var i = 0; i < numGlyphs; i++) {
+      //        x = Math.floor((Math.random() * i * 50) + 1) + 5;
+      //        y = Math.floor((Math.random() * 205) + 1) + 7;
+      //        //1f49b
+      //        context.fillText("<3", x, y);
+      //    };
+
+      //};
+      //context.fillText("<3", 100, 100);
+      
+      //drawScore(context, 1, 1, 0, 0);
+      
+      var options = [];
+      
+      parseForm(context);
+      
+      formElem.onsubmit = async (e) => {
+      	e.preventDefault();
+			  parseForm(context);
+      }
+
+  </script>
+  </div>
+                                <!-- Stop Pasting from this line for Moodle -->
+  </body>
+  </html>
