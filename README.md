@@ -7,7 +7,7 @@ This is designed for students who have no experience of graphic scores, so
 they get more comfortable and can begin to think of how they might approach
 something like _Treatise_ by Cardew.
 
-I suggest you start with one notes and only dots on one line and have 
+I suggest you start with one note and only dots on one line and have 
 students discuss how they might interpret it and try playing a few versions. 
 
 Then add flat lines to it and discuss how they might interpret those as well as
